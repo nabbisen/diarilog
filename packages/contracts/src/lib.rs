@@ -7,7 +7,7 @@
 
 pub mod bff;
 pub mod common;
-pub mod diary;
 pub mod dialog;
+pub mod diary;
 pub mod identity;
 pub mod safety;

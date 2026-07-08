@@ -43,12 +43,10 @@ impl TriggerStorage {
     /// 無効化 (論理削除)
     pub async fn deactivate(env: &Env, trigger_id: &str, user_id: &str) -> Result<()> {
         let db = env.d1("DB")?;
-        db.prepare(
-            "UPDATE trigger_keywords SET is_active = 0 WHERE id = ?1 AND user_id = ?2",
-        )
-        .bind(&[trigger_id.into(), user_id.into()])?
-        .run()
-        .await?;
+        db.prepare("UPDATE trigger_keywords SET is_active = 0 WHERE id = ?1 AND user_id = ?2")
+            .bind(&[trigger_id.into(), user_id.into()])?
+            .run()
+            .await?;
         Ok(())
     }
 

@@ -16,8 +16,8 @@ pub mod pages;
 use contracts::bff::DashboardResponse;
 use leptos::prelude::*;
 use pages::{
-    dashboard::DashboardPage, index::IndexPage, login::LoginPage,
-    onboarding::OnboardingPage, settings::SettingsPage,
+    dashboard::DashboardPage, index::IndexPage, login::LoginPage, onboarding::OnboardingPage,
+    settings::SettingsPage,
 };
 
 /// The current page. SSR resolves this from the URL; hydrate reads it back
@@ -233,10 +233,12 @@ mod tests {
     fn dashboard_data_to_json_none_for_other_routes() {
         assert!(dashboard_data_to_json(&Route::Index).is_none());
         assert!(dashboard_data_to_json(&Route::NotFound).is_none());
-        assert!(dashboard_data_to_json(&Route::Login {
-            issuer: "x".to_string()
-        })
-        .is_none());
+        assert!(
+            dashboard_data_to_json(&Route::Login {
+                issuer: "x".to_string()
+            })
+            .is_none()
+        );
     }
 
     #[test]
@@ -251,6 +253,9 @@ mod tests {
 
     #[test]
     fn route_to_json_onboarding() {
-        assert_eq!(route_to_json(&Route::Onboarding), r#"{"kind":"onboarding"}"#);
+        assert_eq!(
+            route_to_json(&Route::Onboarding),
+            r#"{"kind":"onboarding"}"#
+        );
     }
 }

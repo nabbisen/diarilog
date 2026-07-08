@@ -124,11 +124,7 @@ impl DiaryStorage {
         Ok(results.results::<DiaryMeta>()?)
     }
 
-    pub async fn get_meta(
-        env: &Env,
-        user_id: &str,
-        diary_id: &str,
-    ) -> Result<Option<DiaryMeta>> {
+    pub async fn get_meta(env: &Env, user_id: &str, diary_id: &str) -> Result<Option<DiaryMeta>> {
         let db = env.d1("DB")?;
         Ok(db
             .prepare(
@@ -201,10 +197,9 @@ impl DiaryStorage {
         }
 
         // Determine new title / mood (fall back to current).
-        let new_title = encrypted_title
-            .unwrap_or_else(|| current.encrypted_title.as_deref().unwrap_or(""));
-        let new_mood = encrypted_mood
-            .or_else(|| current.encrypted_mood.as_deref());
+        let new_title =
+            encrypted_title.unwrap_or_else(|| current.encrypted_title.as_deref().unwrap_or(""));
+        let new_mood = encrypted_mood.or_else(|| current.encrypted_mood.as_deref());
         let new_wc = word_count.unwrap_or(current.word_count);
 
         // Update the diaries row (current state).
@@ -254,10 +249,7 @@ impl DiaryStorage {
             .await?;
 
         if let Some(val) = count_result {
-            let count = val
-                .get("cnt")
-                .and_then(|v| v.as_f64())
-                .unwrap_or(0.0) as u32;
+            let count = val.get("cnt").and_then(|v| v.as_f64()).unwrap_or(0.0) as u32;
             if count > MAX_VERSIONS {
                 // Find oldest version with version_number > 1 (preserve original).
                 if let Some(oldest) = db
@@ -474,9 +466,7 @@ impl DiaryStorage {
                         .await?;
                     if let Ok(vrows) = version_keys.results::<serde_json::Value>() {
                         for vrow in vrows {
-                            if let Some(key) =
-                                vrow.get("body_ref").and_then(|v| v.as_str())
-                            {
+                            if let Some(key) = vrow.get("body_ref").and_then(|v| v.as_str()) {
                                 let _ = bucket.delete(key).await;
                             }
                         }

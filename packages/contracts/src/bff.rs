@@ -13,8 +13,8 @@
 //!   ユーザープロフィールやアクティブセッションは表示される
 //! - 完全失敗時のみ 5xx を返す (全 core が失敗した、認証が無効など)
 
-use crate::diary::DiaryMeta;
 use crate::dialog::InterviewSession;
+use crate::diary::DiaryMeta;
 use crate::identity::UserRecord;
 use serde::{Deserialize, Serialize};
 

@@ -1,7 +1,9 @@
 use crate::auth;
 use crate::safety::{ai_client, classifier};
 use crate::storage::triggers::TriggerStorage;
-use contracts::safety::{AddTriggerRequest, ClassifyRequest, ClassifyResponse, TriggerListResponse};
+use contracts::safety::{
+    AddTriggerRequest, ClassifyRequest, ClassifyResponse, TriggerListResponse,
+};
 use worker::*;
 
 /// GET /api/triggers
@@ -54,10 +56,12 @@ pub async fn classify_text(env: &Env, text: &str, language: &str) -> Result<Clas
     }
     let raw = match ai_client::classify(env, text).await {
         Ok(s) => s,
-        Err(_) => return Ok(ClassifyResponse {
-            level: contracts::safety::SafetyLevel::MildConcern,
-            resources: None,
-        }),
+        Err(_) => {
+            return Ok(ClassifyResponse {
+                level: contracts::safety::SafetyLevel::MildConcern,
+                resources: None,
+            });
+        }
     };
     let level = classifier::parse_ai_classification(&raw);
     let resources = if matches!(level, contracts::safety::SafetyLevel::Crisis) {

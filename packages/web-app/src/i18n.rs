@@ -19,7 +19,7 @@
 //! Fluent 構文 `{ $name }` で位置引数を埋め込める。Rust 側からは
 //! `t_args!` マクロで `&[(&str, &FluentValue)]` を渡す。
 
-use fluent_templates::{static_loader, LanguageIdentifier, Loader};
+use fluent_templates::{LanguageIdentifier, Loader, static_loader};
 use std::borrow::Cow;
 use std::collections::HashMap;
 use unic_langid::langid;
@@ -92,11 +92,7 @@ pub fn is_rtl(lang: &str) -> bool {
 
 /// HTML `dir` 属性値を文字列で返す。
 pub fn html_dir(lang: &str) -> &'static str {
-    if is_rtl(lang) {
-        "rtl"
-    } else {
-        "ltr"
-    }
+    if is_rtl(lang) { "rtl" } else { "ltr" }
 }
 
 #[cfg(test)]

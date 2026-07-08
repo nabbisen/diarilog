@@ -6,14 +6,14 @@ use leptos::prelude::*;
 pub fn DashboardPage(data: Option<DashboardResponse>, lang: String) -> impl IntoView {
     match data {
         Some(d) => view! { <Dashboard data=d lang /> }.into_any(),
-        None    => view! { <DashboardUnauthenticated lang /> }.into_any(),
+        None => view! { <DashboardUnauthenticated lang /> }.into_any(),
     }
 }
 
 #[component]
 fn Dashboard(data: DashboardResponse, lang: String) -> impl IntoView {
-    let has_active  = data.active_session.is_some();
-    let entries     = data.recent_diaries;
+    let has_active = data.active_session.is_some();
+    let entries = data.recent_diaries;
 
     // Primary action: resume in-progress interview, or write a new entry.
     let (action_href, action_label) = if has_active {

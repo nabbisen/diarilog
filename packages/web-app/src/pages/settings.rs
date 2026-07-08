@@ -16,9 +16,12 @@ pub fn SettingsPage(lang: String) -> impl IntoView {
 
 #[component]
 fn EraseSection(lang: String) -> impl IntoView {
-    let confirm_word  = t(&lang, "settings-erase-confirm-word");
+    let confirm_word = t(&lang, "settings-erase-confirm-word");
     let mut args: HashMap<Cow<'static, str>, FluentValue<'_>> = HashMap::new();
-    args.insert(Cow::Borrowed("word"), FluentValue::from(confirm_word.clone()));
+    args.insert(
+        Cow::Borrowed("word"),
+        FluentValue::from(confirm_word.clone()),
+    );
     let confirm_label = t_with(&lang, "settings-erase-confirm-label", &args);
 
     view! {

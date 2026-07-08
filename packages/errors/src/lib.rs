@@ -84,8 +84,7 @@ mod tests {
 
     #[test]
     fn roundtrip_json() {
-        let e = ApiError::new(ErrorCode::ValidationFailed, "bad field")
-            .with_trace_id("trace-1");
+        let e = ApiError::new(ErrorCode::ValidationFailed, "bad field").with_trace_id("trace-1");
         let json = serde_json::to_string(&e).unwrap();
         let decoded: ApiError = serde_json::from_str(&json).unwrap();
         assert_eq!(e, decoded);

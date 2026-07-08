@@ -1,15 +1,18 @@
 use crate::handlers::dashboard;
-use crate::ssr::layout::{wrap_document, HydrationConfig};
+use crate::ssr::layout::{HydrationConfig, wrap_document};
 use leptos::prelude::*;
 use web_app::{
-    dashboard_data_to_json,
+    App, Route, dashboard_data_to_json,
     i18n::{html_dir, normalize_to_translated},
-    route_to_json, App, Route,
+    route_to_json,
 };
-use worker::{Env, Headers, Request, Response, RouteContext, Result};
+use worker::{Env, Headers, Request, Response, Result, RouteContext};
 
 fn wants_html(req: &Request) -> bool {
-    req.headers().get("Accept").ok().flatten()
+    req.headers()
+        .get("Accept")
+        .ok()
+        .flatten()
         .map(|v| v.contains("text/html") || v.contains("*/*"))
         .unwrap_or(true)
 }
@@ -23,19 +26,33 @@ fn html_response(body: String) -> Result<Response> {
 }
 
 pub fn resolve_lang(req: &Request) -> String {
-    let accept = req.headers().get("Accept-Language")
-        .ok().flatten().unwrap_or_default();
-    let primary = accept.split(',').next().unwrap_or("")
-        .split(';').next().unwrap_or("")
-        .split('-').next().unwrap_or("")
-        .trim().to_lowercase();
+    let accept = req
+        .headers()
+        .get("Accept-Language")
+        .ok()
+        .flatten()
+        .unwrap_or_default();
+    let primary = accept
+        .split(',')
+        .next()
+        .unwrap_or("")
+        .split(';')
+        .next()
+        .unwrap_or("")
+        .split('-')
+        .next()
+        .unwrap_or("")
+        .trim()
+        .to_lowercase();
     normalize_to_translated(if primary.is_empty() { "en" } else { &primary }).to_string()
 }
 
 fn render_route(env: &Env, title: &str, route: Route, lang: String) -> Result<Response> {
     let body = view! { <App route=route.clone() lang=lang.clone() /> }.to_html();
-    let assets_base_url = env.var("WEB_ASSETS_BASE_URL")
-        .map(|v| v.to_string()).unwrap_or_default();
+    let assets_base_url = env
+        .var("WEB_ASSETS_BASE_URL")
+        .map(|v| v.to_string())
+        .unwrap_or_default();
     let hydration = HydrationConfig {
         assets_base_url,
         route_json: route_to_json(&route),
@@ -47,32 +64,65 @@ fn render_route(env: &Env, title: &str, route: Route, lang: String) -> Result<Re
 }
 
 pub async fn index(req: Request, ctx: RouteContext<()>) -> Result<Response> {
-    if !wants_html(&req) { return Response::error("Not Acceptable", 406); }
+    if !wants_html(&req) {
+        return Response::error("Not Acceptable", 406);
+    }
     render_route(&ctx.env, "diarilog", Route::Index, resolve_lang(&req))
 }
 
 pub async fn login(req: Request, ctx: RouteContext<()>) -> Result<Response> {
-    if !wants_html(&req) { return Response::error("Not Acceptable", 406); }
+    if !wants_html(&req) {
+        return Response::error("Not Acceptable", 406);
+    }
     let lang = resolve_lang(&req);
-    let issuer = ctx.env.var("OIDC_ISSUER").map(|v| v.to_string()).unwrap_or_default();
-    render_route(&ctx.env, "Sign in — diarilog", Route::Login { issuer }, lang)
+    let issuer = ctx
+        .env
+        .var("OIDC_ISSUER")
+        .map(|v| v.to_string())
+        .unwrap_or_default();
+    render_route(
+        &ctx.env,
+        "Sign in — diarilog",
+        Route::Login { issuer },
+        lang,
+    )
 }
 
 pub async fn onboarding(req: Request, ctx: RouteContext<()>) -> Result<Response> {
-    if !wants_html(&req) { return Response::error("Not Acceptable", 406); }
-    render_route(&ctx.env, "Set up your passphrase — diarilog",
-        Route::Onboarding, resolve_lang(&req))
+    if !wants_html(&req) {
+        return Response::error("Not Acceptable", 406);
+    }
+    render_route(
+        &ctx.env,
+        "Set up your passphrase — diarilog",
+        Route::Onboarding,
+        resolve_lang(&req),
+    )
 }
 
 pub async fn dashboard(req: Request, ctx: RouteContext<()>) -> Result<Response> {
-    if !wants_html(&req) { return Response::error("Not Acceptable", 406); }
+    if !wants_html(&req) {
+        return Response::error("Not Acceptable", 406);
+    }
     let lang = resolve_lang(&req);
     // Pre-render with data so the initial HTML is populated.
     let data = dashboard::aggregate_data_for_ssr(&req, &ctx.env).await;
-    render_route(&ctx.env, "Dashboard — diarilog", Route::Dashboard { data }, lang)
+    render_route(
+        &ctx.env,
+        "Dashboard — diarilog",
+        Route::Dashboard { data },
+        lang,
+    )
 }
 
 pub async fn settings(req: Request, ctx: RouteContext<()>) -> Result<Response> {
-    if !wants_html(&req) { return Response::error("Not Acceptable", 406); }
-    render_route(&ctx.env, "Settings — diarilog", Route::Settings, resolve_lang(&req))
+    if !wants_html(&req) {
+        return Response::error("Not Acceptable", 406);
+    }
+    render_route(
+        &ctx.env,
+        "Settings — diarilog",
+        Route::Settings,
+        resolve_lang(&req),
+    )
 }

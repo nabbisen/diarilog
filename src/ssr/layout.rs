@@ -117,16 +117,20 @@ pub fn wrap_document(
     dir: &str,
     hydration: Option<&HydrationConfig>,
 ) -> String {
-    let crisis_label = if lang == "ja" { "危機支援" } else { "Crisis help" };
+    let crisis_label = if lang == "ja" {
+        "危機支援"
+    } else {
+        "Crisis help"
+    };
     let t = html_escape(title);
     let l = html_escape(lang);
     let d = html_escape(dir);
 
     let hydration_html = match hydration {
         Some(cfg) if !cfg.assets_base_url.trim().is_empty() => {
-            let base        = cfg.assets_base_url.trim_end_matches('/');
-            let safe_route  = cfg.route_json.replace("</", r"<\/");
-            let safe_lang   = cfg.lang.replace("</", r"<\/");
+            let base = cfg.assets_base_url.trim_end_matches('/');
+            let safe_route = cfg.route_json.replace("</", r"<\/");
+            let safe_lang = cfg.lang.replace("</", r"<\/");
             let data_script = match &cfg.data_json {
                 Some(j) => format!(
                     "<script>window.__DIARILOG_DATA__={};</script>\n",
@@ -170,9 +174,9 @@ pub fn wrap_document(
 
 pub fn html_escape(s: &str) -> String {
     s.replace('&', "&amp;")
-     .replace('<', "&lt;")
-     .replace('>', "&gt;")
-     .replace('"', "&quot;")
+        .replace('<', "&lt;")
+        .replace('>', "&gt;")
+        .replace('"', "&quot;")
 }
 
 fn html_attr(s: &str) -> String {
@@ -184,14 +188,14 @@ fn js_string(s: &str) -> String {
     o.push('"');
     for c in s.chars() {
         match c {
-            '"'  => o.push_str(r#"\""#),
+            '"' => o.push_str(r#"\""#),
             '\\' => o.push_str(r"\\"),
             '\n' => o.push_str(r"\n"),
             '\r' => o.push_str(r"\r"),
             '\t' => o.push_str(r"\t"),
-            '<'  => o.push_str(r"\u003c"),
-            '>'  => o.push_str(r"\u003e"),
-            '&'  => o.push_str(r"\u0026"),
+            '<' => o.push_str(r"\u003c"),
+            '>' => o.push_str(r"\u003e"),
+            '&' => o.push_str(r"\u0026"),
             c if (c as u32) < 0x20 => o.push_str(&format!("\\u{:04x}", c as u32)),
             c => o.push(c),
         }

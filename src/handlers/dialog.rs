@@ -12,9 +12,12 @@ fn lang(opt: &Option<String>) -> String {
 /// POST /api/interview/start
 pub async fn start_session(mut req: Request, ctx: RouteContext<()>) -> Result<Response> {
     let user = match auth::require_user(&req, &ctx.env).await {
-        Ok(u) => u, Err(r) => return Ok(r),
+        Ok(u) => u,
+        Err(r) => return Ok(r),
     };
-    let body: StartSessionRequest = req.json().await
+    let body: StartSessionRequest = req
+        .json()
+        .await
         .map_err(|_| Error::RustError("bad body".into()))?;
     let env = &ctx.env;
     let language = lang(&body.language);
@@ -23,8 +26,16 @@ pub async fn start_session(mut req: Request, ctx: RouteContext<()>) -> Result<Re
     DialogStorage::create_session(env, &session_id, &user.id, &language).await?;
 
     let q = ai_client::generate_first_question(env, &language).await?;
-    DialogStorage::save_turn(env, &session_id, &user.id, 1,
-        &q.question, q.answer_type.as_str(), None).await?;
+    DialogStorage::save_turn(
+        env,
+        &session_id,
+        &user.id,
+        1,
+        &q.question,
+        q.answer_type.as_str(),
+        None,
+    )
+    .await?;
 
     auth::json_201(&StartSessionResponse {
         session_id,
@@ -35,9 +46,12 @@ pub async fn start_session(mut req: Request, ctx: RouteContext<()>) -> Result<Re
 /// POST /api/interview/answer
 pub async fn submit_answer(mut req: Request, ctx: RouteContext<()>) -> Result<Response> {
     let user = match auth::require_user(&req, &ctx.env).await {
-        Ok(u) => u, Err(r) => return Ok(r),
+        Ok(u) => u,
+        Err(r) => return Ok(r),
     };
-    let body: SubmitAnswerRequest = req.json().await
+    let body: SubmitAnswerRequest = req
+        .json()
+        .await
         .map_err(|_| Error::RustError("bad body".into()))?;
     let env = &ctx.env;
 
@@ -50,8 +64,8 @@ pub async fn submit_answer(mut req: Request, ctx: RouteContext<()>) -> Result<Re
     // Safety classification — direct call, no service binding needed.
     let safety = classify_text(env, &body.answer, &language).await?;
     if matches!(safety.level, SafetyLevel::Crisis) {
-        DialogStorage::update_session_status(env, &body.session_id,
-            &user.id, "crisis_paused").await?;
+        DialogStorage::update_session_status(env, &body.session_id, &user.id, "crisis_paused")
+            .await?;
         return auth::json_200(&SubmitAnswerResponse {
             next_question: None,
             session_completed: false,
@@ -70,10 +84,19 @@ pub async fn submit_answer(mut req: Request, ctx: RouteContext<()>) -> Result<Re
         None
     } else {
         let history = DialogStorage::get_session_history(env, &body.session_id).await?;
-        let q = ai_client::generate_next_question(env, &language, &history, answered as i32 + 1).await?;
+        let q = ai_client::generate_next_question(env, &language, &history, answered as i32 + 1)
+            .await?;
         let turn_order = turns.len() as i32 + 1;
-        DialogStorage::save_turn(env, &body.session_id, &user.id, turn_order,
-            &q.question, q.answer_type.as_str(), None).await?;
+        DialogStorage::save_turn(
+            env,
+            &body.session_id,
+            &user.id,
+            turn_order,
+            &q.question,
+            q.answer_type.as_str(),
+            None,
+        )
+        .await?;
         Some(q)
     };
 
@@ -87,7 +110,8 @@ pub async fn submit_answer(mut req: Request, ctx: RouteContext<()>) -> Result<Re
 /// GET /api/interview/:session_id
 pub async fn get_session(req: Request, ctx: RouteContext<()>) -> Result<Response> {
     let user = match auth::require_user(&req, &ctx.env).await {
-        Ok(u) => u, Err(r) => return Ok(r),
+        Ok(u) => u,
+        Err(r) => return Ok(r),
     };
     let session_id = ctx.param("session_id").unwrap();
     let session = match DialogStorage::get_session(&ctx.env, session_id, &user.id).await? {
@@ -101,16 +125,25 @@ pub async fn get_session(req: Request, ctx: RouteContext<()>) -> Result<Response
 /// POST /api/suggest
 pub async fn generate_draft(mut req: Request, ctx: RouteContext<()>) -> Result<Response> {
     let user = match auth::require_user(&req, &ctx.env).await {
-        Ok(u) => u, Err(r) => return Ok(r),
+        Ok(u) => u,
+        Err(r) => return Ok(r),
     };
-    let body: SuggestRequest = req.json().await
+    let body: SuggestRequest = req
+        .json()
+        .await
         .map_err(|_| Error::RustError("bad body".into()))?;
     let env = &ctx.env;
-    let max: i32 = env.var("MAX_SUGGEST_PER_DAY").ok()
-        .and_then(|v| v.to_string().parse().ok()).unwrap_or(10);
+    let max: i32 = env
+        .var("MAX_SUGGEST_PER_DAY")
+        .ok()
+        .and_then(|v| v.to_string().parse().ok())
+        .unwrap_or(10);
     let count = DialogStorage::count_suggestions_today(env, &user.id).await?;
     if count >= max {
-        return Ok(auth::error_400(&format!("Daily limit reached ({}/{})", count, max)));
+        return Ok(auth::error_400(&format!(
+            "Daily limit reached ({}/{})",
+            count, max
+        )));
     }
     let language = lang(&body.language);
     let input = body.user_input.unwrap_or_default();

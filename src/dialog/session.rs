@@ -15,12 +15,10 @@ impl DialogStorage {
         language: &str,
     ) -> Result<()> {
         let db = env.d1("DB")?;
-        db.prepare(
-            "INSERT INTO interview_sessions (id, user_id, language) VALUES (?1, ?2, ?3)",
-        )
-        .bind(&[session_id.into(), user_id.into(), language.into()])?
-        .run()
-        .await?;
+        db.prepare("INSERT INTO interview_sessions (id, user_id, language) VALUES (?1, ?2, ?3)")
+            .bind(&[session_id.into(), user_id.into(), language.into()])?
+            .run()
+            .await?;
         Ok(())
     }
 
@@ -43,10 +41,7 @@ impl DialogStorage {
     /// 進行中 (status='active') の最新セッションを 1 件取得する。
     /// なければ `None`。
     /// dashboard 集約 API で「再開できる対話」を検出するために使う。
-    pub async fn get_active_session(
-        env: &Env,
-        user_id: &str,
-    ) -> Result<Option<InterviewSession>> {
+    pub async fn get_active_session(env: &Env, user_id: &str) -> Result<Option<InterviewSession>> {
         let db = env.d1("DB")?;
         Ok(db
             .prepare(
@@ -125,10 +120,7 @@ impl DialogStorage {
         Ok(results.results::<InterviewTurn>()?)
     }
 
-    pub async fn get_session_history(
-        env: &Env,
-        session_id: &str,
-    ) -> Result<Vec<(String, String)>> {
+    pub async fn get_session_history(env: &Env, session_id: &str) -> Result<Vec<(String, String)>> {
         let turns = Self::get_turns(env, session_id).await?;
         Ok(turns
             .into_iter()
@@ -156,12 +148,10 @@ impl DialogStorage {
     pub async fn log_suggestion(env: &Env, user_id: &str, char_count: i32) -> Result<()> {
         let db = env.d1("DB")?;
         let log_id = uuid::Uuid::new_v4().to_string();
-        db.prepare(
-            "INSERT INTO suggestion_logs (id, user_id, char_count) VALUES (?1, ?2, ?3)",
-        )
-        .bind(&[log_id.into(), user_id.into(), char_count.into()])?
-        .run()
-        .await?;
+        db.prepare("INSERT INTO suggestion_logs (id, user_id, char_count) VALUES (?1, ?2, ?3)")
+            .bind(&[log_id.into(), user_id.into(), char_count.into()])?
+            .run()
+            .await?;
         Ok(())
     }
 

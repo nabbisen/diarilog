@@ -3,7 +3,7 @@
 //! Replaces the old gateway middleware. All handlers call `require_user`
 //! directly; there is no separate auth worker.
 
-use auth_core::{verify_id_token, OidcConfig};
+use auth_core::{OidcConfig, verify_id_token};
 use errors::{ApiError, ErrorCode};
 use worker::*;
 

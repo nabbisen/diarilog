@@ -27,14 +27,22 @@ pub async fn update_profile(mut req: Request, ctx: RouteContext<()>) -> Result<R
         Err(_) => return Ok(auth::error_400("Invalid request body")),
     };
     if let Some(ref lang) = body.language {
-        let supported = ctx.env.var("SUPPORTED_LANGUAGES")
-            .ok().map(|v| v.to_string())
+        let supported = ctx
+            .env
+            .var("SUPPORTED_LANGUAGES")
+            .ok()
+            .map(|v| v.to_string())
             .unwrap_or_else(|| "ja,en,ar,uk,es".to_string());
         if !supported.split(',').any(|s| s == lang.as_str()) {
             return Ok(auth::error_400(&format!("Unsupported language: {}", lang)));
         }
     }
-    UserStorage::update(&ctx.env, &user.id,
-        body.display_name.as_deref(), body.language.as_deref()).await?;
+    UserStorage::update(
+        &ctx.env,
+        &user.id,
+        body.display_name.as_deref(),
+        body.language.as_deref(),
+    )
+    .await?;
     auth::json_200(&serde_json::json!({ "updated": true }))
 }

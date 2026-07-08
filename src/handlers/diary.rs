@@ -15,10 +15,21 @@ pub async fn create_entry(mut req: Request, ctx: RouteContext<()>) -> Result<Res
     };
     let encrypted_bytes = decode_b64(&body.encrypted_body)?;
     let diary_id = uuid::Uuid::new_v4().to_string();
-    DiaryStorage::save(&ctx.env, &user.id, &diary_id, &encrypted_bytes,
-        &body.encrypted_title, body.encrypted_mood.as_deref(),
-        body.word_count.unwrap_or(0), body.interview_id.as_deref()).await?;
-    auth::json_201(&CreateDiaryResponse { id: diary_id, created: true })
+    DiaryStorage::save(
+        &ctx.env,
+        &user.id,
+        &diary_id,
+        &encrypted_bytes,
+        &body.encrypted_title,
+        body.encrypted_mood.as_deref(),
+        body.word_count.unwrap_or(0),
+        body.interview_id.as_deref(),
+    )
+    .await?;
+    auth::json_201(&CreateDiaryResponse {
+        id: diary_id,
+        created: true,
+    })
 }
 
 /// GET /api/diary
@@ -43,8 +54,13 @@ pub async fn get_entry(req: Request, ctx: RouteContext<()>) -> Result<Response> 
         Some(m) => m,
         None => return Ok(auth::error_404("Diary not found")),
     };
-    let body = DiaryStorage::get_body(&ctx.env, &meta.r2_key).await?.unwrap_or_default();
-    auth::json_200(&DiaryDetailResponse { meta, encrypted_body: encode_b64(&body) })
+    let body = DiaryStorage::get_body(&ctx.env, &meta.r2_key)
+        .await?
+        .unwrap_or_default();
+    auth::json_200(&DiaryDetailResponse {
+        meta,
+        encrypted_body: encode_b64(&body),
+    })
 }
 
 /// PUT /api/diary/:diary_id
@@ -62,9 +78,16 @@ pub async fn update_entry(mut req: Request, ctx: RouteContext<()>) -> Result<Res
         Some(s) => Some(decode_b64(s)?),
         None => None,
     };
-    DiaryStorage::update(&ctx.env, &user.id, diary_id,
-        encrypted_bytes.as_deref(), body.encrypted_title.as_deref(),
-        body.encrypted_mood.as_deref(), body.word_count).await?;
+    DiaryStorage::update(
+        &ctx.env,
+        &user.id,
+        diary_id,
+        encrypted_bytes.as_deref(),
+        body.encrypted_title.as_deref(),
+        body.encrypted_mood.as_deref(),
+        body.word_count,
+    )
+    .await?;
     auth::json_200(&serde_json::json!({ "updated": true }))
 }
 
@@ -87,7 +110,10 @@ pub async fn list_versions(req: Request, ctx: RouteContext<()>) -> Result<Respon
     };
     let diary_id = ctx.param("diary_id").unwrap();
     let versions = DiaryStorage::list_versions(&ctx.env, &user.id, diary_id).await?;
-    auth::json_200(&DiaryVersionListResponse { diary_id: diary_id.to_string(), versions })
+    auth::json_200(&DiaryVersionListResponse {
+        diary_id: diary_id.to_string(),
+        versions,
+    })
 }
 
 /// GET /api/diary/:diary_id/versions/:version
@@ -97,11 +123,16 @@ pub async fn get_version(req: Request, ctx: RouteContext<()>) -> Result<Response
         Err(r) => return Ok(r),
     };
     let diary_id = ctx.param("diary_id").unwrap();
-    let version: u32 = ctx.param("version").and_then(|v| v.parse().ok()).unwrap_or(0);
+    let version: u32 = ctx
+        .param("version")
+        .and_then(|v| v.parse().ok())
+        .unwrap_or(0);
     match DiaryStorage::get_version_body(&ctx.env, &user.id, diary_id, version).await? {
         Some((meta, body)) => auth::json_200(&DiaryVersionDetailResponse {
-            diary_id: diary_id.to_string(), version: meta.version,
-            edited_at: meta.edited_at, encrypted_title: meta.encrypted_title,
+            diary_id: diary_id.to_string(),
+            version: meta.version,
+            edited_at: meta.edited_at,
+            encrypted_title: meta.encrypted_title,
             encrypted_body: encode_b64(&body),
         }),
         None => Ok(auth::error_404("Version not found")),
@@ -115,7 +146,10 @@ pub async fn delete_version(req: Request, ctx: RouteContext<()>) -> Result<Respo
         Err(r) => return Ok(r),
     };
     let diary_id = ctx.param("diary_id").unwrap();
-    let version: u32 = ctx.param("version").and_then(|v| v.parse().ok()).unwrap_or(0);
+    let version: u32 = ctx
+        .param("version")
+        .and_then(|v| v.parse().ok())
+        .unwrap_or(0);
     DiaryStorage::delete_version(&ctx.env, &user.id, diary_id, version).await?;
     auth::json_200(&serde_json::json!({ "deleted": true }))
 }
@@ -134,9 +168,17 @@ pub async fn sync_data(mut req: Request, ctx: RouteContext<()>) -> Result<Respon
     for entry in &body.new_entries {
         let encrypted_bytes = decode_b64(&entry.encrypted_body)?;
         let diary_id = uuid::Uuid::new_v4().to_string();
-        DiaryStorage::save(&ctx.env, &user.id, &diary_id, &encrypted_bytes,
-            &entry.encrypted_title, entry.encrypted_mood.as_deref(),
-            entry.word_count.unwrap_or(0), entry.interview_id.as_deref()).await?;
+        DiaryStorage::save(
+            &ctx.env,
+            &user.id,
+            &diary_id,
+            &encrypted_bytes,
+            &entry.encrypted_title,
+            entry.encrypted_mood.as_deref(),
+            entry.word_count.unwrap_or(0),
+            entry.interview_id.as_deref(),
+        )
+        .await?;
         created_ids.push(diary_id);
     }
     for update in &body.updated_entries {
@@ -144,13 +186,24 @@ pub async fn sync_data(mut req: Request, ctx: RouteContext<()>) -> Result<Respon
             Some(s) => Some(decode_b64(s)?),
             None => None,
         };
-        DiaryStorage::update(&ctx.env, &user.id, &update.diary_id,
-            encrypted_bytes.as_deref(), update.encrypted_title.as_deref(),
-            update.encrypted_mood.as_deref(), update.word_count).await?;
+        DiaryStorage::update(
+            &ctx.env,
+            &user.id,
+            &update.diary_id,
+            encrypted_bytes.as_deref(),
+            update.encrypted_title.as_deref(),
+            update.encrypted_mood.as_deref(),
+            update.word_count,
+        )
+        .await?;
     }
     let server_updates = DiaryStorage::list(&ctx.env, &user.id).await?;
     let synced_at = format!("{}", worker::Date::now().as_millis() / 1000);
-    auth::json_200(&SyncResponse { server_updates, created_ids, synced_at })
+    auth::json_200(&SyncResponse {
+        server_updates,
+        created_ids,
+        synced_at,
+    })
 }
 
 fn decode_b64(s: &str) -> Result<Vec<u8>> {

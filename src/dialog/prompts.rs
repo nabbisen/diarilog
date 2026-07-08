@@ -81,16 +81,26 @@ pub fn interview_system(language: &str) -> String {
 /// 最初の質問を生成するためのユーザー側プロンプト。
 pub fn first_question_user_prompt(language: &str) -> &'static str {
     match normalize_lang(language) {
-        "ja" => "新しいジャーナリングセッションを始めます。ユーザーが安心して書き始められるような、\
-                 穏やかで具体的な最初の質問を1つ生成してください。質問のみを出力してください。",
-        "en" => "Start a new journaling session. Generate one gentle, specific first question \
-                  that helps the user feel safe to begin writing. Output only the question.",
-        "ar" => "ابدأ جلسة كتابة يوميات جديدة. اكتب سؤالاً واحداً لطيفاً ومحدداً يساعد المستخدم \
-                  على الشعور بالأمان لبدء الكتابة. أخرج السؤال فقط.",
-        "uk" => "Розпочніть новий сеанс ведення щоденника. Згенеруйте одне делікатне, конкретне перше запитання, \
-                  яке допоможе користувачу відчути себе в безпеці, щоб почати писати. Виведіть лише запитання.",
-        "es" => "Inicia una nueva sesión de diario. Genera una primera pregunta amable y específica \
-                  que ayude a la persona a sentirse segura para empezar a escribir. Devuelve solo la pregunta.",
+        "ja" => {
+            "新しいジャーナリングセッションを始めます。ユーザーが安心して書き始められるような、\
+                 穏やかで具体的な最初の質問を1つ生成してください。質問のみを出力してください。"
+        }
+        "en" => {
+            "Start a new journaling session. Generate one gentle, specific first question \
+                  that helps the user feel safe to begin writing. Output only the question."
+        }
+        "ar" => {
+            "ابدأ جلسة كتابة يوميات جديدة. اكتب سؤالاً واحداً لطيفاً ومحدداً يساعد المستخدم \
+                  على الشعور بالأمان لبدء الكتابة. أخرج السؤال فقط."
+        }
+        "uk" => {
+            "Розпочніть новий сеанс ведення щоденника. Згенеруйте одне делікатне, конкретне перше запитання, \
+                  яке допоможе користувачу відчути себе в безпеці, щоб почати писати. Виведіть лише запитання."
+        }
+        "es" => {
+            "Inicia una nueva sesión de diario. Genera una primera pregunta amable y específica \
+                  que ayude a la persona a sentirse segura para empezar a escribir. Devuelve solo la pregunta."
+        }
         _ => unreachable!(),
     }
 }

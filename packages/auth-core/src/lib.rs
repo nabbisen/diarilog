@@ -449,7 +449,12 @@ fn current_unix_time() -> i64 {
 // ================================================================
 
 /// WebCrypto SubtleCrypto を用いて RSA 署名を検証する。
-async fn verify_rs_signature(jwk: &Jwk, alg: &str, signing_input: &[u8], signature: &[u8]) -> Result<()> {
+async fn verify_rs_signature(
+    jwk: &Jwk,
+    alg: &str,
+    signing_input: &[u8],
+    signature: &[u8],
+) -> Result<()> {
     // SubtleCrypto ハンドル取得
     let subtle = get_subtle_crypto()?;
 
@@ -486,19 +491,13 @@ async fn verify_rs_signature(jwk: &Jwk, alg: &str, signing_input: &[u8], signatu
 
     // 3. importKey(format="jwk", jwk_obj, algorithm, extractable=false, usages)
     let import_promise = subtle
-        .import_key_with_object(
-            "jwk",
-            &jwk_obj,
-            &import_alg,
-            false,
-            &usages,
-        )
+        .import_key_with_object("jwk", &jwk_obj, &import_alg, false, &usages)
         .map_err(js_to_err)?;
 
     let key_js = JsFuture::from(import_promise).await.map_err(js_to_err)?;
-    let crypto_key: CryptoKey = key_js.dyn_into().map_err(|_| {
-        Error::RustError("importKey did not return a CryptoKey".into())
-    })?;
+    let crypto_key: CryptoKey = key_js
+        .dyn_into()
+        .map_err(|_| Error::RustError("importKey did not return a CryptoKey".into()))?;
 
     // 4. verify(algorithm, key, signature, data)
     let verify_alg = Object::new();
@@ -561,8 +560,7 @@ fn build_rsa_jwk_js(jwk: &Jwk, alg: &str) -> Result<Object> {
         set_str(&obj, "kid", kid)?;
     }
     // ext = true にしないと一部実装が import に失敗することがある
-    Reflect::set(&obj, &JsValue::from_str("ext"), &JsValue::from_bool(true))
-        .map_err(js_to_err)?;
+    Reflect::set(&obj, &JsValue::from_str("ext"), &JsValue::from_bool(true)).map_err(js_to_err)?;
     Ok(obj)
 }
 

@@ -13,13 +13,28 @@ pub fn keyword_crisis_check(text: &str) -> bool {
 
     // 日本語
     let ja = [
-        "死にたい", "自殺", "殺したい", "消えたい", "もう限界",
-        "生きていたくない", "首を吊", "飛び降り", "薬を大量", "リストカット",
+        "死にたい",
+        "自殺",
+        "殺したい",
+        "消えたい",
+        "もう限界",
+        "生きていたくない",
+        "首を吊",
+        "飛び降り",
+        "薬を大量",
+        "リストカット",
     ];
     // 英語
     let en = [
-        "kill myself", "want to die", "suicide", "end my life",
-        "no reason to live", "better off dead", "hurt myself", "self harm", "overdose",
+        "kill myself",
+        "want to die",
+        "suicide",
+        "end my life",
+        "no reason to live",
+        "better off dead",
+        "hurt myself",
+        "self harm",
+        "overdose",
     ];
     // アラビア語
     let ar = ["أريد أن أموت", "انتحار", "أقتل نفسي"];
@@ -250,7 +265,10 @@ mod tests {
     fn parse_ai_classification_variants() {
         assert_eq!(parse_ai_classification("CRISIS"), SafetyLevel::Crisis);
         assert_eq!(parse_ai_classification(" crisis "), SafetyLevel::Crisis);
-        assert_eq!(parse_ai_classification("MILD_CONCERN"), SafetyLevel::MildConcern);
+        assert_eq!(
+            parse_ai_classification("MILD_CONCERN"),
+            SafetyLevel::MildConcern
+        );
         assert_eq!(parse_ai_classification("SAFE"), SafetyLevel::Safe);
         assert_eq!(parse_ai_classification("garbage"), SafetyLevel::Safe);
     }
