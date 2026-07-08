@@ -48,7 +48,7 @@ A `reviewed: true` mark is **not permanent**. Hotline numbers can be retired, UR
 - Every January, an issue is opened listing every `reviewed: true` entry whose last verification commit is older than 11 months.
 - For hotlines, R3 (maintainer technical verification) and R3a (reviewer cultural confirmation) are both repeated.
 - For text content, the previous reviewers (or new ones meeting R2) confirm or revise.
-- Entries that fail re-review revert to `reviewed: false` and lose their position in the published list — the IASP fallback covers the gap (RFC 001-precursor invariant).
+- Entries that fail re-review revert to `reviewed: false` and lose their position in the published list — the IASP fallback covers the gap (RFC 01-precursor invariant).
 
 ## Operational changes to `docs/i18n-review-flow.md`
 

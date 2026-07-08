@@ -1,10 +1,10 @@
 [workspace]
 resolver = "2"
 members = [
-    "packages/contracts",
     "packages/auth-core",
-    "packages/errors",
+    "packages/contracts",
     "packages/crypto",
+    "packages/errors",
     "packages/web-app",
 ]
 # bff-hydrate is the CSR WASM bundle, built separately via scripts/build-bff-hydrate.sh

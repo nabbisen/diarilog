@@ -14,7 +14,7 @@ Surface the `reviewed: false` flag from `CrisisResources`, `HotlineInfo`, and di
 
 ## Motivation
 
-After RFC 001-precursor work (v0.6), the backend already tracks which strings are expert-reviewed. From the user's point of view the situation is currently invisible: the dashboard renders provisional translations identically to reviewed ones. For a trauma-care service, this is a real safety gap. A user in crisis might dial a hotline number that has not been verified by a native-speaking clinician. We already mitigate this by always including the IASP fallback (RFC-equivalent test: `crisis_resources_always_include_international_fallback`), but the user has no way to know which entry to trust.
+After RFC 01-precursor work (v0.6), the backend already tracks which strings are expert-reviewed. From the user's point of view the situation is currently invisible: the dashboard renders provisional translations identically to reviewed ones. For a trauma-care service, this is a real safety gap. A user in crisis might dial a hotline number that has not been verified by a native-speaking clinician. We already mitigate this by always including the IASP fallback (RFC-equivalent test: `crisis_resources_always_include_international_fallback`), but the user has no way to know which entry to trust.
 
 ## Requirements
 

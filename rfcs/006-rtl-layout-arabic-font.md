@@ -14,7 +14,7 @@ Make the UI render correctly when `lang == "ar"` (and other RTL languages added 
 
 ## Motivation
 
-The bff layer already emits the right `<html lang dir>` attributes (RFC 001-precursor v2.4). The CSS, however, does not respond to `dir="rtl"`. Margins, paddings, alignments, the position of icons relative to text — everything is hardcoded for LTR. An Arabic-speaking user would currently see correct character shaping but a mirrored-wrong layout, which is worse than English-only would be.
+The bff layer already emits the right `<html lang dir>` attributes (RFC 01-precursor v2.4). The CSS, however, does not respond to `dir="rtl"`. Margins, paddings, alignments, the position of icons relative to text — everything is hardcoded for LTR. An Arabic-speaking user would currently see correct character shaping but a mirrored-wrong layout, which is worse than English-only would be.
 
 Separately, Arabic glyph rendering depends on the user's device having an Arabic font installed. Default coverage is good on iOS and Android, weaker on desktop Linux and older Windows. Self-hosting a small Arabic font subset removes that variability.
 

@@ -14,7 +14,7 @@ Let users explicitly choose their display language, persist that choice (server-
 
 ## Motivation
 
-The current language resolution chain (RFC 001-precursor v2.4) goes UserRecord → cookie → Accept-Language → `en`. Steps 1 and 2 are present in the chain but no UI sets them, so in practice users are stuck with whatever Accept-Language their browser sends. A user whose browser is configured for English but who would rather read Japanese has no way to switch.
+The current language resolution chain (RFC 01-precursor v2.4) goes UserRecord → cookie → Accept-Language → `en`. Steps 1 and 2 are present in the chain but no UI sets them, so in practice users are stuck with whatever Accept-Language their browser sends. A user whose browser is configured for English but who would rather read Japanese has no way to switch.
 
 ## Requirements
 

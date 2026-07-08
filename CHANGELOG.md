@@ -159,7 +159,7 @@ AI prompt templates (`reviewed` flags), `safety/classifier.rs` with balanced
 fallback. `HotlineInfo` gains `region` and `reviewed` fields;
 `CrisisResources` gains `message_reviewed`.
 
-`rfcs/` directory created with RFC 01–010.
+`rfcs/` directory created with RFC 001–010.
 
 71 passed (12 binaries).
 
