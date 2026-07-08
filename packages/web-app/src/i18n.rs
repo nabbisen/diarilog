@@ -153,10 +153,9 @@ mod tests {
     fn t_with_args_substitutes_placeholders() {
         use fluent_templates::fluent_bundle::FluentValue;
         let mut args = HashMap::new();
-        args.insert(Cow::Borrowed("name"), FluentValue::from("Alice"));
-        let result = t_with("en", "dashboard-greeting", &args);
-        assert!(result.contains("Alice"));
-        assert!(result.contains("Welcome"));
+        args.insert(Cow::Borrowed("word"), FluentValue::from("ERASE"));
+        let result = t_with("en", "settings-erase-confirm-label", &args);
+        assert!(result.contains("ERASE"));
     }
 
     #[test]
