@@ -1,14 +1,15 @@
 [package]
-name = "errors"
-version.workspace = true
-edition.workspace = true
-license.workspace = true
-authors.workspace = true
+name        = "diarilog-errors"
 description = "Shared error types for worker-to-worker communication"
+version.workspace       = true
+edition.workspace       = true
+rust-version.workspace  = true
+license.workspace       = true
+authors.workspace       = true
 
 [lib]
-doctest = false
+doctest         = false
 
 [dependencies]
-serde      = { workspace = true }
-serde_json = { workspace = true }
+serde                       = { workspace = true }
+serde_json                  = { workspace = true }
