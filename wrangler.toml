@@ -1,0 +1,47 @@
+name = "diarilog"
+main = "build/worker/shim.mjs"
+compatibility_date = "2025-01-01"
+
+[build]
+command = "worker-build --release"
+
+[vars]
+APP_ENV = "development"
+SUPPORTED_LANGUAGES = "ja,en,ar,uk,es"
+OIDC_ISSUER = ""
+OIDC_AUDIENCE = ""
+OIDC_JWKS_TTL_SEC = "3600"
+TURNSTILE_SITE_KEY = ""
+MAX_SUGGEST_PER_DAY = "10"
+WEB_ASSETS_BASE_URL = ""
+
+[[kv_namespaces]]
+binding = "SETTINGS_KV"
+id = "local"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "diarilog-db"
+database_id = "local"
+
+[[r2_buckets]]
+binding = "DIARY_BUCKET"
+bucket_name = "diarilog-diaries"
+
+[ai]
+binding = "AI"
+
+[assets]
+directory = "dist"
+binding = "ASSETS"
+
+# ── Environments ──────────────────────────────────────────────────────────────
+
+[env.dev]
+name = "diarilog-dev"
+
+[env.staging]
+name = "diarilog-staging"
+
+[env.production]
+name = "diarilog"

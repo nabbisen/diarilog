@@ -1,0 +1,14 @@
+[package]
+name = "errors"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "Shared error types for worker-to-worker communication"
+
+[lib]
+doctest = false
+
+[dependencies]
+serde      = { workspace = true }
+serde_json = { workspace = true }

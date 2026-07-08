@@ -1,0 +1,8 @@
+[build]
+target = "wasm32-unknown-unknown"
+
+[target.wasm32-unknown-unknown]
+rustflags = [
+    # getrandom 0.3+ requires this cfg flag to use the wasm_js backend
+    "--cfg", "getrandom_backend=\"wasm_js\"",
+]

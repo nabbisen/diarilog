@@ -1,0 +1,47 @@
+[package]
+name = "web-app"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "Leptos components shared between gateway-worker (SSR) and gateway-hydrate (CSR)"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+doctest = false
+
+[dependencies]
+# leptos は default-features = false で取り、feature ごとに有効化する
+leptos = { version = "0.8", default-features = false }
+
+# Worker 境界の型を共有 (DashboardResponse など)
+contracts = { workspace = true }
+serde      = { workspace = true }
+serde_json = { workspace = true }
+
+# i18n: Project Fluent based localization. Translations are embedded at compile
+# time from `locales/{lang}/main.ftl` and resolved at runtime per request.
+fluent-templates = { workspace = true }
+unic-langid       = { workspace = true }
+
+# WASM-JS interop (hydrate 時に必要)
+wasm-bindgen = { workspace = true, optional = true }
+web-sys      = { workspace = true, optional = true }
+js-sys       = { workspace = true, optional = true }
+console_error_panic_hook = { workspace = true, optional = true }
+
+# getrandom: hydrate / ssr いずれでも uuid 経由で必要
+getrandom = { workspace = true }
+
+[features]
+# ssr: サーバー側レンダリング用 (gateway-worker から参照)
+ssr = ["leptos/ssr"]
+
+# hydrate: ブラウザ側ハイドレーション用 (gateway-hydrate から参照)
+hydrate = [
+    "leptos/hydrate",
+    "dep:wasm-bindgen",
+    "dep:web-sys",
+    "dep:js-sys",
+    "dep:console_error_panic_hook",
+]

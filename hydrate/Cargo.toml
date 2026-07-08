@@ -1,0 +1,27 @@
+[package]
+name = "bff-hydrate"
+version = "0.1.0"
+edition = "2024"
+license = "Apache-2.0"
+authors = ["nabbisen"]
+description = "Browser-side hydration bundle for the bff-worker SSR output (compiled with wasm-pack --target web)"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+doctest = false
+
+# このクレートは独立した workspace ルートとして解決される (本リポジトリの workspace.exclude
+# に列挙されているため)。よって [workspace] セクションを自前で持つ。
+[workspace]
+
+[dependencies]
+# 親 workspace の `packages/web-app` を path 参照で取り込む。
+# `workspace = true` は workspace member でしか使えないため、明示的なパス指定にしている。
+web-app = { path = "../packages/web-app", features = ["hydrate"] }
+
+[profile.release]
+# WASM サイズ削減のための設定。
+opt-level = "z"        # サイズ最優先
+lto = true             # Link-time optimization
+codegen-units = 1
+strip = true           # デバッグシンボル除去

@@ -1,0 +1,76 @@
+[workspace]
+resolver = "2"
+members = [
+    "packages/contracts",
+    "packages/auth-core",
+    "packages/errors",
+    "packages/crypto",
+    "packages/web-app",
+]
+# bff-hydrate is the CSR WASM bundle, built separately via scripts/build-bff-hydrate.sh
+exclude = ["workers/bff-hydrate"]
+
+[workspace.package]
+edition = "2024"
+version = "0.8.0"
+license = "Apache-2.0"
+authors = ["nabbisen"]
+
+# ── The single consolidated worker lives here at the root ────────────────────
+[package]
+name = "diarilog"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "AI-assisted journaling platform for trauma care — single Cloudflare Worker"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+doctest = false
+
+[workspace.dependencies]
+worker    = { version = "0.8", features = ["d1", "queue"] }
+serde     = { version = "1", features = ["derive"] }
+serde_json = "1"
+futures   = "0.3"
+uuid      = { version = "1", features = ["v4", "js"] }
+chrono    = { version = "0.4", features = ["serde", "wasmbind"] }
+base64    = "0.22"
+getrandom = { version = "0.3", features = ["wasm_js"] }
+wasm-bindgen         = "0.2"
+wasm-bindgen-futures = "0.4"
+js-sys   = "0.3"
+web-sys  = { version = "0.3", features = ["Crypto", "SubtleCrypto", "CryptoKey"] }
+leptos   = { version = "0.8", default-features = false }
+fluent-templates = "0.14"
+unic-langid      = "0.9"
+console_error_panic_hook = "0.1"
+web-app   = { path = "packages/web-app", default-features = false }
+contracts = { path = "packages/contracts" }
+crypto    = { path = "packages/crypto" }
+auth-core = { path = "packages/auth-core" }
+errors    = { path = "packages/errors" }
+
+[dependencies]
+worker     = { workspace = true }
+serde      = { workspace = true }
+serde_json = { workspace = true }
+futures    = { workspace = true }
+uuid       = { workspace = true }
+base64     = { workspace = true }
+leptos     = { workspace = true, features = ["ssr"] }
+fluent-templates = { workspace = true }
+unic-langid      = { workspace = true }
+web-app   = { workspace = true, features = ["ssr"] }
+contracts = { workspace = true }
+auth-core = { workspace = true }
+crypto    = { workspace = true }
+errors    = { workspace = true }
+console_error_panic_hook = { workspace = true }
+
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+strip = true

@@ -1,0 +1,74 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+env:
+  RUST_VERSION: "1.91"
+  CARGO_TERM_COLOR: always
+
+jobs:
+  validate:
+    name: Check, test, lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust ${{ env.RUST_VERSION }}
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y rustc-${{ env.RUST_VERSION }} cargo-${{ env.RUST_VERSION }}
+          sudo ln -sf /usr/bin/cargo-${{ env.RUST_VERSION }} /usr/local/bin/cargo
+          sudo ln -sf /usr/bin/rustc-${{ env.RUST_VERSION }} /usr/local/bin/rustc
+          rustc --version
+          cargo --version
+
+      # Cache the registry index and downloaded crates. Keyed on Cargo.lock so any
+      # dependency change properly busts the cache while still reusing the most
+      # recent partial hit via restore-keys.
+      - name: Cache cargo registry and target
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: cargo-${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            cargo-${{ runner.os }}-
+
+      - name: cargo check (library targets)
+        run: cargo check --workspace --offline
+
+      - name: cargo check (all targets, including tests)
+        run: cargo check --workspace --all-targets --offline
+
+      - name: cargo test
+        run: |
+          cargo test --workspace --offline --tests 2>&1 | tee /tmp/test-output.txt
+          # Guard: total passed count must not regress below the v2.5 baseline of 71.
+          PASSED=$(grep -oP 'test result: ok\. \K\d+' /tmp/test-output.txt | awk '{s+=$1} END {print s}')
+          echo "Tests passed: $PASSED"
+          if [ "$PASSED" -lt 71 ]; then
+            echo "::error::Test count regressed below baseline (got $PASSED, need ≥ 71)"
+            exit 1
+          fi
+
+      - name: cargo fmt --check
+        run: cargo fmt --all -- --check
+
+      - name: cargo clippy
+        # Treat warnings as errors once the codebase is clean; currently advisory.
+        run: cargo clippy --workspace --offline -- -W clippy::all
+        continue-on-error: true
+
+      - name: cargo audit
+        run: |
+          cargo install cargo-audit --locked --quiet 2>/dev/null || true
+          cargo audit || true
+        # Advisory-only: do not fail CI until we have a process to review
+        # each advisory individually.
+        continue-on-error: true
